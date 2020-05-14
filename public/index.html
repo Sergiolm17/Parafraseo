@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Init</title>
+  </head>
+  <body>
+    <p id="rute">aqui ira la ruta</p>
+    <textarea id="textareaID" rows="10" style="width: 100%;"> </textarea>
+    <textarea id="resultado" rows="10" style="width: 100%;"> </textarea>
+    <button id="myButton">Enviar</button>
+  </body>
+  <script>
+    var button = document.getElementById("myButton");
+    button.addEventListener("click", async () => {
+      var data = { text: document.getElementById("textareaID").value };
+      button.disabled = true;
+      const res = await fetch("/", {
+        method: "POST", // or 'PUT'
+        body: JSON.stringify(data), // data can be `string` or {object}!
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const { text, rute, err } = await res.json();
+      button.disabled = false;
+      document.getElementById("resultado").value = text;
+      document.getElementById("rute").innerHTML = JSON.stringify(rute);
+    });
+  </script>
+</html>
