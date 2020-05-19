@@ -56,6 +56,30 @@ app.post("/check", async (req, res) => {
   console.log(rescheck);
   res.send(rescheck);
 });
+var request = require("request");
+var headers = {
+  "api-key": "60d93569-01f2-4c95-9357-44966d686647",
+};
+app.post("/generate", async (req, res) => {
+  var { text } = req.body;
+
+  const formData = {
+    text,
+  };
+  var options = {
+    url: "https://api.deepai.org/api/text-generator",
+    method: "POST",
+    headers: headers,
+    formData,
+  };
+  request.post(options, (error, response, body) => {
+    res.send(body);
+    if (!error && response.statusCode == 200) {
+      console.log(body);
+    }
+  });
+});
+
 function* shuffle(array) {
   var i = array.length;
 
