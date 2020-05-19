@@ -60,11 +60,12 @@ var request = require("request");
 var headers = {
   "api-key": "60d93569-01f2-4c95-9357-44966d686647",
 };
+
 app.post("/generate", async (req, res) => {
   var { text } = req.body;
-
+  const es = await translate(text, { to: "en" });
   const formData = {
-    text,
+    text: es.from.language.iso === "en" ? text : es.text,
   };
   var options = {
     url: "https://api.deepai.org/api/text-generator",
@@ -72,10 +73,11 @@ app.post("/generate", async (req, res) => {
     headers: headers,
     formData,
   };
-  request.post(options, (error, response, body) => {
-    res.send(body);
+  request.post(options, async (error, response, body) => {
     if (!error && response.statusCode == 200) {
-      console.log(body);
+      const { output, id } = JSON.parse(body);
+      const es = await translate(output, { to: "es" });
+      res.send({ es, en: output, id });
     }
   });
 });
