@@ -9,12 +9,40 @@
     <p id="rute">aqui ira la ruta</p>
     <textarea id="textareaID" rows="10" style="width: 100%;"> </textarea>
     <textarea id="resultado" rows="10" style="width: 100%;"> </textarea>
-    <button id="myButton">Enviar</button>
+    <button id="myButtonparafra">Parafrasear</button>
+    <button id="myButtongenerar">Generar</button>
   </body>
   <script>
-    var button = document.getElementById("myButton");
+    var button = document.getElementById("myButtonparafra");
+    var buttongenerate = document.getElementById("myButtongenerar");
+    buttongenerate.addEventListener("click", async () => {
+      document.getElementById("resultado").value = "";
+      document.getElementById("rute").innerHTML = "se está generando el texto";
+
+      var data = {
+        text: document.getElementById("textareaID").value,
+      };
+      buttongenerate.disabled = true;
+      const res = await fetch("/generate", {
+        method: "POST", // or 'PUT'
+        body: JSON.stringify(data), // data can be `string` or {object}!
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const { es, en, id } = await res.json();
+      console.log(es);
+
+      buttongenerate.disabled = false;
+      document.getElementById("resultado").value = es.text;
+      document.getElementById("rute").innerHTML = "texto generado";
+    });
     button.addEventListener("click", async () => {
-      var data = { text: document.getElementById("textareaID").value };
+      var data = {
+        text: document.getElementById("textareaID").value,
+        number: 2,
+      };
+      document.getElementById("resultado").value = "";
       button.disabled = true;
       const res = await fetch("/", {
         method: "POST", // or 'PUT'
@@ -23,10 +51,13 @@
           "Content-Type": "application/json",
         },
       });
-      const { text, rute, err } = await res.json();
+      const { output, input, err, rute } = await res.json();
+
       button.disabled = false;
-      document.getElementById("resultado").value = text;
-      document.getElementById("rute").innerHTML = JSON.stringify(rute);
+      document.getElementById("resultado").value = output;
+      document.getElementById("rute").innerHTML = JSON.stringify(
+        rute.map((element) => element.from)
+      );
     });
   </script>
 </html>

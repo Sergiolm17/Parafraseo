@@ -14,34 +14,41 @@ app.post("/", async (req, res) => {
 
   try {
     const rute = [];
+    console.log(req.body);
 
-    //const rute = lng.map((element) => languages[element]);
-    //console.log(rute);
+    var { text, number } = req.body;
+    var retutext = { text };
 
-    var { text } = req.body;
-    var retutext = "";
+    for (let index = 0; index < number + 1; index++) {
+      to = index === number ? "es" : randlangs.next().value;
+      retutext = await translate(retutext.text, {
+        to,
+      });
+      let fix_esp = await translate(retutext.text, {
+        to: "es",
+      });
+      rute.push({
+        from: languages[retutext.from.language.iso],
+        to: languages[to],
+        fix_esp: fix_esp.text,
+        text: retutext.text,
+      });
+    }
 
-    var to = randlangs.next().value;
-    rute.push(languages[to]);
-    retutext = await translate(text, { to });
+    //    console.log({ text: es.text, rute, erro: "" });
 
-    to = randlangs.next().value;
-    rute.push(languages[to]);
-    retutext = await translate(retutext.text, { to });
-
-    to = randlangs.next().value;
-    rute.push(languages[to]);
-    retutext = await translate(retutext.text, { to });
-
-    const es = await translate(retutext.text, { to: "es" });
-    console.log(es.text, rute);
-    res.send({ text: es.text, rute, erro: "" });
+    res.send({
+      input: text,
+      output: rute[rute.length - 1].text || null,
+      rute,
+      erro: "",
+    });
   } catch (err) {
     console.error("err", err);
     res.send({ text: "", rute, err });
   }
 });
-function createtranslation(params) {}
+async function generatetranslate(params) {}
 //19d91456b9bcaaaa134c8c2c038d4703
 app.post("/check", async (req, res) => {
   var { text } = req.body;
@@ -63,6 +70,8 @@ var headers = {
 
 app.post("/generate", async (req, res) => {
   var { text } = req.body;
+  console.log(text);
+
   const es = await translate(text, { to: "en" });
   const formData = {
     text: es.from.language.iso === "en" ? text : es.text,
@@ -83,12 +92,10 @@ app.post("/generate", async (req, res) => {
 });
 
 function* shuffle(array) {
-  var i = array.length;
+  let i = array.length;
 
   while (i--) {
     yield array.splice(Math.floor(Math.random() * (i + 1)), 1)[0];
   }
 }
-app.listen(PORT, function () {
-  console.log("Example app listening on port 3000!");
-});
+app.listen(PORT, () => console.log("Example app listening on port 3000!"));
